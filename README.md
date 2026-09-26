@@ -105,27 +105,35 @@ each recommendation really returned the complete data.
 
 1. **Recon before code.** `recon` usually finds a JSON API or a hydration blob — far more
    reliable and complete than scraping HTML. Read `recon.md`, then pick the recipe in §4.
-2. **Targets are plain words, not selectors.** `s.click("Add to cart")`, `s.fill("Email", "…")`,
+2. **Ask before anything irreversible.** Scraping means *reading*. Never place orders, pay, book,
+   send messages/forms to people, delete data or change account settings unless the user explicitly
+   confirmed that exact action in the current conversation. `expect=` only checks a request *after*
+   it happened; to make such clicks impossible, load a veto plugin (§5.4).
+3. **Targets are plain words, not selectors.** `s.click("Add to cart")`, `s.fill("Email", "…")`,
    `s.click("second result link")`, `s.click("e12")` (a ref from `s.observe()`). CSS also works.
-3. **Never `sleep()`.** Every action already waits until the page *and its API calls* settle.
+4. **Never `sleep()`.** Every action already waits until the page *and its API calls* settle.
    To wait for something specific: `s.wait_for({"response": "/api/cart"})`, `{"text": "…"}`.
-4. **Validate with `expect=`** so a silent failure becomes a clear error:
-   `s.click("Place order", expect={"url": "/api/orders", "method": "POST", "status": 201})`.
-5. **Read results, not HARs.** Each action returns `ok`, `error`, `hint`, `network.primary`
+5. **Validate with `expect=`** so a silent failure becomes a clear error:
+   `s.click("Add to cart", expect={"url": "/api/cart", "method": "POST", "status": 201})`.
+6. **Read results, not HARs.** Each action returns `ok`, `error`, `hint`, `network.primary`
    (the request it caused), `validation`, `candidates` (when a target was not found). With the
    default `strict=True` a failed action raises `ActionError` whose `.details` hold the same dict;
    agents that prefer return values use `Session(strict=False)`.
    After `finish()`, `report.json` / `report.md` / `endpoints.json` summarise everything.
-6. **Log in once, reuse it.** `s.save_state("state.json")` then `Session(storage_state="state.json")`
-   (cookies + localStorage + IndexedDB + sessionStorage). For manual logins: `login` command.
-7. **Be polite.** A server's 429/503 `Retry-After` is always obeyed (it overrides your delay),
+7. **Log in once, reuse it — and keep it out of git.** `s.save_state("agenttrace_state/site.json")`,
+   then `Session(storage_state="agenttrace_state/site.json")` (cookies + localStorage + IndexedDB +
+   sessionStorage); manual logins: `login` command. State files and HARs hold **live cookies and
+   tokens**: keep them under `agenttrace_state/` and `agenttrace_runs/` (git-ignored, §2), never
+   paste them into chats or issues, share HARs only after `redact`, and never type passwords on a
+   command line (`login` + `--state`, or `${secret:NAME}` in a config).
+8. **Be polite.** A server's 429/503 `Retry-After` is always obeyed (it overrides your delay),
    navigations are paced per host, recon reports robots.txt `Crawl-delay`. Add
    `rate_limit={"min_interval_s": 1}` for bulk jobs. Respect each site's terms.
-8. **Blocked?** Don't loop. `detect_block()` / recon says so → `stealth=True`, `headless=False`,
+9. **Blocked?** Don't loop. `detect_block()` / recon says so → `stealth=True`, `headless=False`,
    `hitl="wait"` (a human solves the CAPTCHA once), then `save_state()` and reuse the state.
-9. **Stop on your own.** Guardrails abort loops (`max_repeats`), repeated failures on one target
+10. **Stop on your own.** Guardrails abort loops (`max_repeats`), repeated failures on one target
    (`max_failures_per_target`), and step/time budgets with a clear `GuardrailViolation` reason.
-10. **Leave evidence.** `finish()` writes HARs, screenshots of failures, `log.jsonl`, timeline —
+11. **Leave evidence.** `finish()` writes HARs, screenshots of failures, `log.jsonl`, timeline —
     point the user to `report.md` when you are done.
 
 ### 1.3 Minimal agent loop (Python)
@@ -133,7 +141,7 @@ each recommendation really returned the complete data.
 ```python
 import agenttrace as at
 
-with at.Session(out_dir="runs/books", strict=False) as s:   # failures → ok=False (no exception)
+with at.Session(out_dir="agenttrace_runs/books", strict=False) as s:   # failures → ok=False
     s.goto("https://books.toscrape.com/")
     page = s.observe()                                 # what can I click? (refs e1, e2 …)
     r = s.click("Travel")                              # plain-word target
@@ -141,7 +149,7 @@ with at.Session(out_dir="runs/books", strict=False) as s:   # failures → ok=Fa
         print(r["error"], r["hint"], r.get("candidates"))
     data = s.paginate(mode="auto", max_pages=5)        # items across pages
     print(len(data["items"]), data["fields"])
-# → runs/books/report.md, session.har, endpoints.json, …
+# → agenttrace_runs/books/report.md, session.har, endpoints.json, …
 ```
 
 ### 1.4 Paste this into your project's `CLAUDE.md` / `AGENTS.md`
@@ -153,8 +161,12 @@ with at.Session(out_dir="runs/books", strict=False) as s:   # failures → ok=Fa
   `strategy` in recon.md (api → `s.fetch()`/export/HttpClient, hydration → `hydration_data()`,
   html-list → extract/paginate, unblock-first → stealth + headed + hitl).
 - Prefer `Session` actions with plain-word targets; never add sleeps; use `expect=` to validate.
-- Save logins with `save_state()`; keep rate limits; outputs go to `agenttrace_runs/`.
-- Verify the module on this machine with `python agenttrace.py selftest --quick`.
+- Never place orders, pay, send messages, delete data or change account settings without the
+  user's explicit confirmation of that exact action in this conversation — scraping is read-only.
+- Login state (`save_state()`) goes to `agenttrace_state/`, runs/HARs to `agenttrace_runs/`; both
+  hold live cookies/tokens and stay git-ignored (also ignore `*.har`). Never put passwords on a
+  command line; use `login` + `--state` or `${secret:NAME}`. Share HARs only after `redact`.
+- Keep rate limits; verify the module on this machine with `python agenttrace.py selftest --quick`.
 ```
 
 ---
@@ -173,6 +185,13 @@ py agenttrace.py doctor                      python3 agenttrace.py doctor
   `npm i -g newman` (lets the self-test replay exported Postman collections with real Newman).
 * Use it as a **module** (`import agenttrace as at`, keep the file next to your code or on
   `PYTHONPATH`) or as a **CLI** (`python agenttrace.py …`). Nothing else to install.
+* Add these lines to your project's `.gitignore` — login states and HARs contain live cookies/tokens:
+
+  ```gitignore
+  agenttrace_runs/
+  agenttrace_state/
+  *.har
+  ```
 * If the bundled browser cannot start, `doctor` says why; AgentTrace also falls back to a locally
   installed Chrome/Edge.
 
@@ -189,10 +208,10 @@ py agenttrace.py doctor                      python3 agenttrace.py doctor
 | use the site's JSON API directly | `capture` → `endpoints` → `export` | `s.fetch(url, params=)` (browser cookies), `s.endpoints()`, `at.export_all(...)`, `at.HttpClient` |
 | read a Next.js / Nuxt data blob | `recon URL` (gives the path) | `s.hydration_data()` (MCP: `page_data`) |
 | read schema.org data | — | `s.jsonld()` |
-| log in once and reuse it | `login URL --save state.json` | `s.save_state()`, `Session(storage_state=…)` |
+| log in once and reuse it | `login URL --save agenttrace_state/site.json` | `s.save_state()`, `Session(storage_state=…)` |
 | click / type / select like a human | — | `s.click("…")`, `s.fill("…", "…")`, `s.select(…)` |
 | verify an action hit the right API | `validate HAR --expect "POST /api/cart"` | `expect={…}` on any action |
-| save a verified HAR of a page | `capture URL --har page.har` | `s.capture(url)`, `s.save_har()` |
+| save a verified HAR of a page | `capture URL --har agenttrace_runs/page.har` | `s.capture(url)`, `s.save_har()` |
 | crawl a list of URLs | `crawl URL… \| --file urls.txt` | `at.crawl(s, urls)` |
 | run a repeatable, resumable job | `run config.json [--resume]` | `at.run_config(cfg)` |
 | record my clicks, replay them | `record URL --out wf.json` · `replay wf.json` | `at.WorkflowRecorder`, `at.replay` |
@@ -214,9 +233,9 @@ py agenttrace.py doctor                      python3 agenttrace.py doctor
 ### 4.1 API-first scraping (the best outcome of `recon`)
 
 ```bash
-python agenttrace.py recon https://shop.example/deals --out runs/deals
+python agenttrace.py recon https://shop.example/deals --out agenttrace_runs/deals
 #  strategy: api  endpoint: GET https://shop.example/api/v1/deals  pagination: {"params": ["page"]}
-python agenttrace.py export runs/deals/session.har --out runs/deals/api
+python agenttrace.py export agenttrace_runs/deals/session.har --out agenttrace_runs/deals/api
 #  → postman_collection.json · openapi.json/.yaml · api_client.py · requests.sh
 ```
 
@@ -235,7 +254,7 @@ while True:
 Logged in, or the API needs the site's cookies/headers? Call it through the browser instead:
 
 ```python
-with at.Session(storage_state="state.json") as s:
+with at.Session(storage_state="agenttrace_state/shop.json") as s:
     s.goto("https://shop.example/deals")                           # sets cookies, CSRF, etc.
     page2 = s.fetch("/api/v1/deals", params={"page": 2})           # same cookies/proxy/UA, rate-limited, in the HAR
     rows = page2["json"]["items"]                                  # ok=False on HTTP errors (accept_status=[404] to allow)
@@ -266,8 +285,8 @@ Field specs: `"css"` (text), `"css@attr"` (attribute, URLs made absolute), `"css
 ### 4.3 Log in once, reuse the session
 
 ```bash
-python agenttrace.py login https://site.example/login --save state.json   # a window opens, log in, press Enter
-python agenttrace.py extract https://site.example/orders --state state.json --output orders.csv
+python agenttrace.py login https://site.example/login --save agenttrace_state/site.json   # a window opens, log in, press Enter
+python agenttrace.py extract https://site.example/orders --state agenttrace_state/site.json --output orders.csv
 ```
 
 ```python
@@ -278,8 +297,8 @@ with at.Session() as s:
     s.goto("https://site.example/login")
     s.fill("Email", "me@example.com"); s.fill("Password", os.environ["SITE_PASS"])
     s.click("Sign in", expect={"status": "2xx"})
-    s.save_state("state.json")           # cookies + localStorage + IndexedDB + sessionStorage
-with at.Session(storage_state="state.json") as s:
+    s.save_state("agenttrace_state/site.json")   # cookies + localStorage + IndexedDB + sessionStorage
+with at.Session(storage_state="agenttrace_state/site.json") as s:
     s.goto("https://site.example/account")               # already logged in
 ```
 
@@ -309,7 +328,7 @@ with at.Session() as s:
 ```python
 with at.Session(stealth=True, headless=False, hitl="wait") as s:   # human solves it once
     s.goto("https://protected.example/")      # pauses, writes PAUSED.json, beeps, waits
-    s.save_state("clearance.json")            # reuse the clearance later
+    s.save_state("agenttrace_state/clearance.json")   # reuse the clearance later
 ```
 
 `hitl` options: `"wait"` (default: pause until solved; create a `RESUME` file in the run folder to
@@ -331,8 +350,8 @@ pace that triggered a 429 and never goes faster again. A `Retry-After` longer th
 ### 4.8 A repeatable, resumable job (no code)
 
 ```bash
-python agenttrace.py run site.json --out runs/site          # killed? just add --resume
-python agenttrace.py run site.json --out runs/site --resume # continues after the last finished step
+python agenttrace.py run site.json --out agenttrace_runs/site            # killed? just add --resume
+python agenttrace.py run site.json --out agenttrace_runs/site --resume   # continues after the last finished step
 ```
 
 See §7 for the config format (login with secrets, steps, pagination, extra pages, exports).
@@ -350,10 +369,15 @@ renamed ids/classes and moved elements (self-healing).
 ### 4.10 Plain-language goals
 
 ```bash
-python agenttrace.py goal "log in as demo with password demo123, search for 'lamp', open the first result, add it to the cart, open the cart, verify 'Your cart' is shown, go to the catalogue and extract all product names and prices" --url https://shop.example/
+python agenttrace.py login https://shop.example/login --save agenttrace_state/shop.json    # log in by hand, once
+python agenttrace.py goal "search for 'lamp', open the first result, add it to the cart, open the cart, verify 'Your cart' is shown, go to the catalogue and extract all product names and prices" --url https://shop.example/ --state agenttrace_state/shop.json
 ```
 
-Understood phrases: open/visit URL · log in as U with password P · search for "q" · fill "v" in F ·
+Never write a real password into a goal (or any command line): shell history, process lists and AI
+transcripts keep it. Log in with `login` + `--state` as above, or put the login steps in a config
+with `${secret:NAME}` (§7).
+
+Understood phrases: open/visit URL · log in as U with password P (throw-away test accounts only) · search for "q" · fill "v" in F ·
 select "v" from F · check/uncheck X · add to cart / wishlist · open the first/second/Nth X ·
 next page · download X · scroll to the bottom · wait for "t" · verify "t" · extract/scrape/collect X ·
 go back · submit · go to X page · click X. For anything smarter, plug in your own planner:
@@ -362,9 +386,9 @@ go back · submit · go to X page · click X. For anything smarter, plug in your
 ### 4.11 API reverse-engineering & regression
 
 ```bash
-python agenttrace.py capture https://app.example/ --har app.har     # verified: waits for late APIs
-python agenttrace.py endpoints app.har --md                         # REST + GraphQL, params, schemas, auth, paging
-python agenttrace.py diff runs/monday runs/today --md               # exit 4 = breaking API change
+python agenttrace.py capture https://app.example/ --har agenttrace_runs/app.har   # verified: waits for late APIs
+python agenttrace.py endpoints agenttrace_runs/app.har --md                       # REST + GraphQL, params, schemas, auth, paging
+python agenttrace.py diff agenttrace_runs/monday agenttrace_runs/today --md       # exit 4 = breaking API change
 ```
 
 ### 4.12 Mocking for tests
@@ -384,7 +408,7 @@ with at.Session() as s:
 pool = at.TaskPool(max_workers=3)
 def job(url):
     def run():
-        with at.Session(out_dir=f"runs/{at.slugify(url)}") as s:   # own browser, cookies, HARs
+        with at.Session(out_dir=f"agenttrace_runs/{at.slugify(url)}") as s:   # own browser, cookies, HARs
             s.goto(url)
             return s.extract_list()["items"]
     return (url, run)
@@ -490,10 +514,15 @@ fingerprint dict.
 ### 5.4 Hooks & plugins (extend without touching the file)
 
 ```python
-# my_plugin.py — load with Session(plugins=["my_plugin.py"]) or "plugins": ["my_plugin.py"] in a config
+# safety_plugin.py — load with Session(plugins=["safety_plugin.py"]) or "plugins": [...] in a config
+import re
+
+IRREVERSIBLE = re.compile(r"place order|buy now|checkout|pay\b|confirm purchase|book now|send|submit order"
+                          r"|delete|remove account|unsubscribe|transfer", re.I)
+
 def pre_action(session, action):              # before every action; return {"veto": "why"} to block it
-    if action["action"] == "click" and "delete" in action["target"].lower():
-        return {"veto": "never click destructive buttons"}
+    if action["action"] in ("click", "press") and IRREVERSIBLE.search(action["target"]):  # submit() runs as click/press
+        return {"veto": "irreversible action - needs the user's explicit confirmation"}
 
 def request_finished(session, record):        # after every request, body available
     if "/api/" in record.url:
@@ -524,7 +553,7 @@ Events: `session_start`, `session_end`, `pre_action`, `post_action`, `request`, 
 | `record URL` | record your browsing into a workflow | `--out wf.json` |
 | `replay WF` | replay with per-step network validation | `--times N` |
 | `goal "…"` | plain-language task | `--url START` |
-| `login URL` | manual login in a window, save state | `--save state.json` |
+| `login URL` | manual login in a window, save state | `--save agenttrace_state/site.json` |
 | `endpoints HAR` | API endpoints of any HAR (also DevTools HARs) | `--md --out` |
 | `export HAR` | Postman + OpenAPI + Python client + curl | `--out DIR --name` |
 | `redact HAR` | mask secrets for sharing | `--out` |
@@ -551,7 +580,7 @@ extraction) · `3` redaction found leaks · `4` breaking API change (`diff`) · 
   "base_url": "https://news.example/",
   "rate_limit": {"min_interval_s": 1},
   "auth": {
-    "state_file": "news-auth.json",
+    "state_file": "agenttrace_state/news-auth.json",
     "check": {"url": "/members/", "text": "Members area"},
     "login": [
       {"goto": "/wp-login.php"},
@@ -634,6 +663,10 @@ agenttrace_runs/<session-id>/
 
 `ArtifactStore` adds `<store>/<workflow>/<run_id>/manifest.json`, `workflow.json`,
 `fingerprint.json` and a global `index.json` (history, versions, compare, verify).
+
+⚠️ HARs of logged-in runs contain live cookies, tokens and request bodies. They are meant for your
+machine: keep the run folders git-ignored, and share only a masked copy
+(`python agenttrace.py redact session.har --out safe.har`, or record with `Session(redact=True)`).
 
 ---
 
