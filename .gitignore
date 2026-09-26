@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# AgentTrace run outputs (created next to where you run it)
+agenttrace_runs/
+agenttrace_selftest/
+agenttrace_store/
+agenttrace_projects/
+.agenttrace_write_test
