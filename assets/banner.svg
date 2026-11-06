@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 360" width="1280" height="360" role="img" aria-labelledby="t d">
+  <title id="t">AgentTrace</title>
+  <desc id="d">A spider sitting in a network web. AgentTrace: the AI's web-scraping sidekick, in one Python file.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0f1f"/>
+      <stop offset="1" stop-color="#1a1f45"/>
+    </linearGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="abd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0e7ff"/>
+      <stop offset="1" stop-color="#7c8cf5"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#6366f1" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.2"/>
+    </filter>
+  </defs>
+
+  <!-- card -->
+  <rect x="2" y="2" width="1276" height="356" rx="26" fill="url(#bg)" stroke="#2c3470" stroke-width="2"/>
+
+  <!-- ===== logo: spider on a network web ===== -->
+  <g transform="translate(200 180)">
+    <circle r="165" fill="url(#glow)"/>
+
+    <!-- web: rings + spokes -->
+    <g fill="none" stroke="#6b78d6" stroke-opacity="0.45" stroke-width="1.6" stroke-linejoin="round">
+      <polygon points="50.8,21 21,50.8 -21,50.8 -50.8,21 -50.8,-21 -21,-50.8 21,-50.8 50.8,-21"/>
+      <polygon points="92.4,38.3 38.3,92.4 -38.3,92.4 -92.4,38.3 -92.4,-38.3 -38.3,-92.4 38.3,-92.4 92.4,-38.3"/>
+      <polygon points="134,55.5 55.5,134 -55.5,134 -134,55.5 -134,-55.5 -55.5,-134 55.5,-134 134,-55.5"/>
+      <g stroke-opacity="0.5">
+        <line x1="0" y1="0" x2="134" y2="55.5"/>
+        <line x1="0" y1="0" x2="55.5" y2="134"/>
+        <line x1="0" y1="0" x2="-55.5" y2="134"/>
+        <line x1="0" y1="0" x2="-134" y2="55.5"/>
+        <line x1="0" y1="0" x2="-134" y2="-55.5"/>
+        <line x1="0" y1="0" x2="-55.5" y2="-134"/>
+        <line x1="0" y1="0" x2="55.5" y2="-134"/>
+        <line x1="0" y1="0" x2="134" y2="-55.5"/>
+      </g>
+    </g>
+
+    <!-- web nodes = requests being traced -->
+    <g>
+      <circle cx="134" cy="55.5" r="5.5" fill="#22d3ee"/>
+      <circle cx="-55.5" cy="134" r="5.5" fill="#34d399"/>
+      <circle cx="-134" cy="-55.5" r="5.5" fill="#a78bfa"/>
+      <circle cx="55.5" cy="-134" r="5.5" fill="#22d3ee"/>
+      <circle cx="92.4" cy="-38.3" r="4.5" fill="#a78bfa"/>
+      <circle cx="-38.3" cy="92.4" r="4.5" fill="#22d3ee"/>
+      <circle cx="-92.4" cy="38.3" r="4.5" fill="#34d399"/>
+      <circle cx="38.3" cy="-92.4" r="4.5" fill="#34d399"/>
+      <g fill="#8b95e8">
+        <circle cx="55.5" cy="134" r="3.5"/><circle cx="-134" cy="55.5" r="3.5"/>
+        <circle cx="-55.5" cy="-134" r="3.5"/><circle cx="134" cy="-55.5" r="3.5"/>
+      </g>
+    </g>
+
+    <!-- spider -->
+    <g transform="scale(1.3)">
+      <!-- legs (right side, mirrored for left) -->
+      <g id="legs" fill="none" stroke="#c7d2fe" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9,-21 L33,-52 L62,-30"/>
+        <path d="M11,-14 L45,-29 L73,-6"/>
+        <path d="M11,-7 L46,3 L70,32"/>
+        <path d="M9,0 L31,27 L47,60"/>
+      </g>
+      <use href="#legs" transform="scale(-1 1)"/>
+
+      <!-- abdomen -->
+      <ellipse cx="0" cy="16" rx="19" ry="26" fill="url(#abd)"/>
+      <!-- trace line (network waveform) on the abdomen -->
+      <polyline points="-13,17 -7,17 -3,6 2,29 6,12 9,17 13,17" fill="none" stroke="#1a1f45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- head -->
+      <circle cx="0" cy="-17" r="12.5" fill="#e0e7ff"/>
+      <!-- eyes -->
+      <circle cx="-5" cy="-19" r="4.6" fill="#22d3ee" filter="url(#blur)" opacity="0.9"/>
+      <circle cx="5" cy="-19" r="4.6" fill="#22d3ee" filter="url(#blur)" opacity="0.9"/>
+      <circle cx="-5" cy="-19" r="3.4" fill="#0a0f1f"/>
+      <circle cx="5" cy="-19" r="3.4" fill="#0a0f1f"/>
+      <circle cx="-4.2" cy="-20" r="1.2" fill="#67e8f9"/>
+      <circle cx="5.8" cy="-20" r="1.2" fill="#67e8f9"/>
+    </g>
+  </g>
+
+  <!-- ===== text ===== -->
+  <g font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <text x="400" y="162" font-size="92" font-weight="800" letter-spacing="-1">
+      <tspan fill="#f1f5ff">Agent</tspan><tspan fill="url(#title)">Trace</tspan>
+    </text>
+    <text x="404" y="208" font-size="31" font-weight="600" fill="#c9d1ff">The AI's web-scraping sidekick</text>
+    <text x="404" y="243" font-size="19" fill="#8e99d6">Give it a goal. Get the answer, the proof and a reusable script.</text>
+  </g>
+
+  <!-- ===== capability chips ===== -->
+  <g font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="16" font-weight="600" text-anchor="middle">
+    <g transform="translate(404 275)">
+      <rect width="148" height="36" rx="18" fill="#12183a" stroke="#3a4488"/>
+      <text x="74" y="23" fill="#67e8f9">1 Python file</text>
+    </g>
+    <g transform="translate(566 275)">
+      <rect width="110" height="36" rx="18" fill="#12183a" stroke="#3a4488"/>
+      <text x="55" y="23" fill="#a5b4fc">CLI</text>
+    </g>
+    <g transform="translate(690 275)">
+      <rect width="148" height="36" rx="18" fill="#12183a" stroke="#3a4488"/>
+      <text x="74" y="23" fill="#a5b4fc">Python API</text>
+    </g>
+    <g transform="translate(852 275)">
+      <rect width="148" height="36" rx="18" fill="#12183a" stroke="#3a4488"/>
+      <text x="74" y="23" fill="#a5b4fc">MCP server</text>
+    </g>
+    <g transform="translate(1014 275)">
+      <rect width="148" height="36" rx="18" fill="#12261f" stroke="#2f7a5b"/>
+      <text x="74" y="23" fill="#6ee7b7">never pays</text>
+    </g>
+  </g>
+</svg>

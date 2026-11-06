@@ -1,25 +1,6 @@
 <div align="center">
 
-```
- █████╗  ██████╗ ███████╗███╗   ██╗████████╗████████╗██████╗  █████╗  ██████╗███████╗
-██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝╚══██╔══╝██╔══██╗██╔══██╗██╔════╝██╔════╝
-███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║      ██║   ██████╔╝███████║██║     █████╗
-██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║      ██║   ██╔══██╗██╔══██║██║     ██╔══╝
-██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║      ██║   ██║  ██║██║  ██║╚██████╗███████╗
-╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝
-```
-
-```
-               ██
-               ██                ░▒▓█ the AI's web-scraping sidekick █▓▒░
-   ▄       ▄████████▄       ▄
-    ▀▄    ███  ██  ███    ▄▀       ONE file ........ agenttrace.py
-      ▀▀▄▄████████████▄▄▀▀         drives .......... a real Chromium (Playwright)
-  ▄▀▀▀▀▄▄██████████████▄▄▀▀▀▀▄     records ......... every request → verified HAR
-     ▄▀ ▄██████████████▄ ▀▄        finds ........... the JSON API behind the page
-   ▄▀ ▄▀  ▀██████████▀  ▀▄ ▀▄      speaks .......... CLI · Python · MCP (Claude)
-     ▄▀      ▀▀▀▀▀▀      ▀▄        proves .......... real-world self-tests (+ BFP's own)
-```
+<img src="assets/banner.svg" alt="AgentTrace - the AI's web-scraping sidekick: a spider on a network web. One Python file; CLI, Python API and MCP server; never pays." width="100%">
 
 ![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-3776AB?logo=python&logoColor=white)
 ![Playwright](https://img.shields.io/badge/browser-Playwright%20%2F%20Chromium-2EAD33?logo=playwright&logoColor=white)
@@ -34,6 +15,8 @@
 > captures and verifies the network traffic of every page / click / SPA route, tells you
 > **how the site should be scraped** (JSON API? hydration blob? HTML list?), extracts the data,
 > and exports reusable API clients — politely, reproducibly, with evidence.
+
+<p align="center"><img src="assets/how-it-works.svg" alt="How AgentTrace works: say the goal, a real browser acts, every step is verified and recorded, you get the answer, a report, proof and a reusable script. It stops before payment." width="100%"></p>
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════════════╗
