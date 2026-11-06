@@ -1,0 +1,31 @@
+# ── Python ───────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+
+# ── AgentTrace outputs: HARs, screenshots, saved logins and browser profiles hold live cookies/tokens ──
+agenttrace_runs/
+agenttrace_state/
+agenttrace_profiles/
+automation_output/
+*.har
+storage_state*.json
+*-state.json
+
+# ── Local tool settings (they contain machine-specific paths) ─────────────
+.claude/
+CLAUDE.md
+
+# ── graphify (local knowledge-graph tooling) — never published ────────────
+graphify-out/
+.graphifyignore
+
+# ── BFP's run outputs (BFP is built into agenttrace.py; its commands write these next to where you run them) ──
+bfp_runs/
+bfp_selftest/
+bfp_profiles/
+
+# ── Editors / OS ─────────────────────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
